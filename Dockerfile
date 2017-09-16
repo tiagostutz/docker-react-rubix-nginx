@@ -2,6 +2,7 @@ FROM nginx
 
 RUN apt-get update
 RUN apt-get install -qq curl
+RUN apt-get install -qq git
 
 ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.3.1
@@ -12,6 +13,8 @@ RUN tar -zxvf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-compo
 && rm "node-v$NODE_VERSION-linux-x64.tar.gz" \
 && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+RUN npm install -g bower
+
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
@@ -20,6 +23,9 @@ ENV NODE_ENV $NODE_ENV
 RUN rm -rf dist || true
 ONBUILD COPY ./package.json /usr/src/app
 ONBUILD RUN npm install
+ONBUILD COPY ./bower.json /usr/src/app
+ONBUILD COPY ./.bowerrc /usr/src/app
+ONBUILD RUN bower install --allow-root
 
 ONBUILD COPY ./public /usr/src/app/public
 ONBUILD COPY ./sass /usr/src/app/sass
